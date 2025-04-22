@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Testing;
@@ -37,6 +38,25 @@ namespace TSelfGeneric.Test
             await test.RunAsync(CancellationToken.None);
         }
 
+        // TODO: Doc
+        public static async Task VerifyAnalyzerAsync(string source, string config, params DiagnosticResult[] expected)
+        {
+            var test = new Test
+            {
+                TestCode = source,
+                TestState =
+                {
+                    AnalyzerConfigFiles =
+                    {
+                        ("/.editorconfig", config)
+                    }
+                },
+            };
+
+            test.ExpectedDiagnostics.AddRange(expected);
+            await test.RunAsync(CancellationToken.None);
+        }
+
         /// <inheritdoc cref="CodeFixVerifier{TAnalyzer, TCodeFix, TTest, TVerifier}.VerifyCodeFixAsync(string, string)"/>
         public static async Task VerifyCodeFixAsync(string source, string fixedSource)
             => await VerifyCodeFixAsync(source, DiagnosticResult.EmptyDiagnosticResults, fixedSource);
@@ -55,6 +75,40 @@ namespace TSelfGeneric.Test
             };
 
             test.ExpectedDiagnostics.AddRange(expected);
+            await test.RunAsync(CancellationToken.None);
+        }
+
+        // TODO: Doc
+        public static async Task VerifyCodeFixAsync(string source, DiagnosticResult expected, string fixedSource, string config)
+            => await VerifyCodeFixAsync(source, new[] { expected }, fixedSource, config);
+
+        // TODO: Doc
+        public static async Task VerifyCodeFixAsync(string source, DiagnosticResult[] expected, string fixedSource, string config)
+        {
+            var test =  new Test()
+            {
+                TestCode = source,
+                FixedCode = fixedSource,
+                TestState =
+                {
+                    AnalyzerConfigFiles =
+                    {
+                        ("/.editorconfig", config)
+                    }
+                },
+                //TestState =
+                //{
+                //    AdditionalFiles = { (".editorconfig", editorConfig) }
+                //},
+                // ExpectedDiagnostics = { expected },
+            };
+            test.ExpectedDiagnostics.AddRange(expected);
+
+            //runner.SolutionTransforms.Add((solution, projectId) =>
+            //{
+            //    var documentId = DocumentId.CreateNewId(projectId, ".editorconfig");
+            //    return solution.AddAnalyzerConfigDocument(documentId, ".editorconfig", SourceText.From(editorConfig), filePath: "/.editorconfig");
+            //});
             await test.RunAsync(CancellationToken.None);
         }
     }

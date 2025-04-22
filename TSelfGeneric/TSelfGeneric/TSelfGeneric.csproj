@@ -14,6 +14,12 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
     </ItemGroup>
 
+	<ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>TSelfGeneric.Test</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+	
     <ItemGroup>
         <Compile Update="Resources.fr.Designer.cs">
           <DependentUpon>Resources.fr.resx</DependentUpon>
