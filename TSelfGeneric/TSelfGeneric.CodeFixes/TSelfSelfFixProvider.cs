@@ -50,7 +50,7 @@ namespace TSelfGeneric
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
             // Find the containing class declaration
-            var classDeclaration = typeArgumentSyntax.Ancestors().OfType<ClassDeclarationSyntax>().First();
+            var classDeclaration = typeArgumentSyntax.Ancestors().OfType<TypeDeclarationSyntax>().First();
             var className = classDeclaration.Identifier.Text;
 
             // Create a new type argument with the class name

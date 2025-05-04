@@ -42,11 +42,13 @@ namespace TSelfGeneric
             // Consider registering other actions that act on syntax instead of or in addition to symbols
             // See https://github.com/dotnet/roslyn/blob/main/docs/analyzers/Analyzer%20Actions%20Semantics.md for more information
             context.RegisterSyntaxNodeAction(AnalyzeSymbol, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeSymbol, SyntaxKind.InterfaceDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeSymbol, SyntaxKind.StructDeclaration);
         }
 
         private static void AnalyzeSymbol(SyntaxNodeAnalysisContext context)
         {
-            var classDeclaration = (ClassDeclarationSyntax)context.Node;
+            var classDeclaration = (TypeDeclarationSyntax)context.Node;
             if (classDeclaration.BaseList == null) return;
 
             var config = Config.From(context);

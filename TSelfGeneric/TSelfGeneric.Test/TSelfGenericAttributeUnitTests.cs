@@ -39,6 +39,10 @@ public class TSelfGenericAttributeUnitTests
                 class Implementation : ISelfRequested<Implementation> { }
             
                 class ClassImplementation : SelfRequested<ClassImplementation> { }
+
+                interface IImplementation : ISelfRequested<IImplementation> { }
+
+                struct implementation :  ISelfRequested<implementation> { }
             }
             """;
 
@@ -61,6 +65,10 @@ public class TSelfGenericAttributeUnitTests
                 class Implementation : ISelfRequested<Implementation> { }
 
                 class BadImplementation : ISelfRequested<{|#0:Implementation|}> { }
+
+                interface IBadImplementation : ISelfRequested<{|#1:Implementation|}> { }
+
+                struct implementation : ISelfRequested<{|#2:Implementation|}> { }
             }
             """;
 
@@ -77,14 +85,23 @@ public class TSelfGenericAttributeUnitTests
                 class Implementation : ISelfRequested<Implementation> { }
 
                 class BadImplementation : ISelfRequested<BadImplementation> { }
+
+                interface IBadImplementation : ISelfRequested<IBadImplementation> { }
+
+                struct implementation : ISelfRequested<implementation> { }
             }
             """;
 
-        var expected = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+        var expected0 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
             .WithLocation(0)
             .WithArguments("BadImplementation");
-
-        await VerifyCS.VerifyCodeFixAsync(test, expected, fixTest, editorConfig);
+        var expected1 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(1)
+            .WithArguments("IBadImplementation");
+        var expected2 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(2)
+            .WithArguments("implementation");
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig);
     }
 
 }

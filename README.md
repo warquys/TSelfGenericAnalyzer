@@ -45,19 +45,22 @@ dotnet_tselfgeneric.tself_param_name = TSelf
 dotnet_tselfgeneric.tself_param_name.enable = true
 ```
 
-know issue:
+Not inheriting the aspect of the TSelf when passing a generic argument will result to an warning.
 
 ```cs
 interface ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }
 
 class SomeImplementation<T> : ISelfRequested<T> where T : ISelfRequested<T> { }
-
-class Implementation : ISelfRequested<Implementation> { }
-
-class BadImplementation : SomeImplementation<Implementation> { }
-// No Warning :(
+//                       ~
+//  Warning here, should be name TSelf or as the TSelfAttribute like [TSelf] T.
 ```
 
-This is normal i do not finsh to write the analyzer.
-In the future "SomeImplementation" will require to prolongate the TSelf.
-TBD...
+TODO:
+
+- [x] support the class delcaration
+- [x] support the interface delcaration
+- [x] support the struct delcaration
+- [ ] review the naming of error and message
+- [ ] publish
+
+- [ ] Fix string localisation bug

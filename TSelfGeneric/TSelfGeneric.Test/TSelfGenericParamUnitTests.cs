@@ -33,6 +33,10 @@ public class TSelfGenericParamUnitTests
                 class Implementation : ISelfRequested<Implementation> { }
             
                 class ClassImplementation : SelfRequested<ClassImplementation> { }
+
+                interface IImplementation : ISelfRequested<IImplementation> { }
+                
+                struct implementation : ISelfRequested<implementation> { }
             }
             """;
 
@@ -51,6 +55,10 @@ public class TSelfGenericParamUnitTests
                 class Implementation : ISelfRequested<Implementation> { }
             
                 class BadImplementation : ISelfRequested<{|#0:Implementation|}> { }
+
+                interface IBadImplementation : ISelfRequested<{|#1:Implementation|}> { }
+
+                struct badImplementation : ISelfRequested<{|#2:Implementation|}> { }
             }
             """;
 
@@ -62,13 +70,23 @@ public class TSelfGenericParamUnitTests
                 class Implementation : ISelfRequested<Implementation> { }
             
                 class BadImplementation : ISelfRequested<BadImplementation> { }
+
+                interface IBadImplementation : ISelfRequested<IBadImplementation> { }
+
+                struct badImplementation : ISelfRequested<badImplementation> { }
             }
             """;
 
-        var expected = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+        var expected0 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
             .WithLocation(0)
             .WithArguments("BadImplementation");
-        await VerifyCS.VerifyCodeFixAsync(test, expected, fixTest, editorConfig);
+        var expected1 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(1)
+            .WithArguments("IBadImplementation");
+        var expected2 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(2)
+            .WithArguments("badImplementation");
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig);
     }
 
     [TestMethod]
@@ -82,6 +100,10 @@ public class TSelfGenericParamUnitTests
                 class Implementation : ISelfRequested<int, Implementation> { }
             
                 class BadImplementation : ISelfRequested<int, {|#0:Implementation|}> { }
+
+                interface IBadImplementation : ISelfRequested<int, {|#1:Implementation|}> { }
+            
+                struct badImplementation : ISelfRequested<int, {|#2:Implementation|}> { }
             }
             """;
 
@@ -93,13 +115,23 @@ public class TSelfGenericParamUnitTests
                 class Implementation : ISelfRequested<int, Implementation> { }
             
                 class BadImplementation : ISelfRequested<int, BadImplementation> { }
+
+                interface IBadImplementation : ISelfRequested<int, IBadImplementation> { }
+
+                struct badImplementation : ISelfRequested<int, badImplementation> { }
             }
             """;
 
-        var expected = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+        var expected0 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
             .WithLocation(0)
             .WithArguments("BadImplementation");
-        await VerifyCS.VerifyCodeFixAsync(test, expected, fixTest, editorConfig);
+        var expected1 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(1)
+            .WithArguments("IBadImplementation");
+        var expected2 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(2)
+            .WithArguments("badImplementation");
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig);
     }
 
     [TestMethod]
@@ -111,10 +143,12 @@ public class TSelfGenericParamUnitTests
                 interface ISelfRequested<TSelf, TOther> where TSelf : ISelfRequested<TSelf, TOther> { }
 
                 class Implementation : ISelfRequested<Implementation, int> { }
-            
+
                 class Deep {
                     class BadImplementation : ISelfRequested<{|#0:Implementation|}, int> { }
-                }
+                    interface IBadImplementation : ISelfRequested<{|#1:Implementation|}, int> { }
+                    struct badImplementation : ISelfRequested<{|#2:Implementation|}, int> { }
+                 }
             }
             """;
 
@@ -124,17 +158,25 @@ public class TSelfGenericParamUnitTests
                 interface ISelfRequested<TSelf, TOther> where TSelf : ISelfRequested<TSelf, TOther> { }
 
                 class Implementation : ISelfRequested<Implementation, int> { }
-            
+
                 class Deep {
                     class BadImplementation : ISelfRequested<BadImplementation, int> { }
-                }
+                    interface IBadImplementation : ISelfRequested<IBadImplementation, int> { }
+                    struct badImplementation : ISelfRequested<badImplementation, int> { }
+                 }
             }
             """;
 
-        var expected = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+        var expected0 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
             .WithLocation(0)
             .WithArguments("BadImplementation");
-        await VerifyCS.VerifyCodeFixAsync(test, expected, fixTest, editorConfig);
+        var expected1 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(1)
+            .WithArguments("IBadImplementation");
+        var expected2 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(2)
+            .WithArguments("badImplementation");
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig);
     }
 
     [TestMethod]
@@ -162,10 +204,10 @@ public class TSelfGenericParamUnitTests
             }
             """;
 
-        var expected = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+        var expected0 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
             .WithLocation(0)
             .WithArguments("BadImplementation");
-        await VerifyCS.VerifyCodeFixAsync(test, expected, fixTest, editorConfig);
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0 }, fixTest, editorConfig);
     }
 
     //No diagnostics expected to show up
