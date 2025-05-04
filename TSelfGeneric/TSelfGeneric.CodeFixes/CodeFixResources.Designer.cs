@@ -61,11 +61,29 @@ namespace TSelfGeneric {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Add the TSelf attribute to the TSelf genreic parameter.
+        /// </summary>
+        internal static string CodeFixTitleTSelfNestedAttribute {
+            get {
+                return ResourceManager.GetString("CodeFixTitleTSelfNestedAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Rename the TSelf attribute to the TSelf format.
+        /// </summary>
+        internal static string CodeFixTitleTSelfNestedName {
+            get {
+                return ResourceManager.GetString("CodeFixTitleTSelfNestedName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Make use the class implementing/inheriting the interface.
         /// </summary>
-        internal static string CodeFixTitle {
+        internal static string CodeFixTSelfSelf {
             get {
-                return ResourceManager.GetString("CodeFixTitle", resourceCulture);
+                return ResourceManager.GetString("CodeFixTSelfSelf", resourceCulture);
             }
         }
     }

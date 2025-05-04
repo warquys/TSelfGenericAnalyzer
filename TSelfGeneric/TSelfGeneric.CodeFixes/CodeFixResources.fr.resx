@@ -117,9 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CodeFixTitle" xml:space="preserve">
-    <value>Utiliser la classe implémentant/héritant l'interface
-</value>
+  <data name="CodeFixTSelfSelf" xml:space="preserve">
+    <value>Utiliser la classe implémentant/héritant l'interface</value>
     <comment>The title of the code fix.</comment>
+  </data>
+  <data name="CodeFixTitleTSelfNestedAttribute" xml:space="preserve">
+    <value>Ajouter l'attribut TSelf au paramètre générique TSelf</value>
+  </data>
+  <data name="CodeFixTitleTSelfNestedName" xml:space="preserve">
+    <value>Renommer le paramètre générique TSelf au format TSelf</value>
   </data>
 </root>

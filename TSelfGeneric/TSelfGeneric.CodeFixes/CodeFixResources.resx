@@ -117,8 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CodeFixTitle" xml:space="preserve">
+  <data name="CodeFixTSelfSelf" xml:space="preserve">
     <value>Make use the class implementing/inheriting the interface</value>
-    <comment>The title of the code fix.</comment>
+    <comment>The title of the code fix TSelfSelfFixProvider.</comment>
+  </data>
+  <data name="CodeFixTitleTSelfNestedAttribute" xml:space="preserve">
+    <value>Add the TSelf attribute to the TSelf genreic parameter</value>
+    <comment>The title of the code fix TSelfNestedFix by Attirubet</comment>
+  </data>
+  <data name="CodeFixTitleTSelfNestedName" xml:space="preserve">
+    <value>Rename the TSelf attribute to the TSelf format</value>
+    <comment>The title of the code fix TSelfNestedFix by Name</comment>
   </data>
 </root>

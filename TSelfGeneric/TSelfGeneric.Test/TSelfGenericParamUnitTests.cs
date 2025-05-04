@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = TSelfGeneric.Test.CSharpCodeFixVerifier<
     TSelfGeneric.TSelfGenericAnalyzer,
-    TSelfGeneric.TSelfGenericCodeFixProvider>;
+    TSelfGeneric.TSelfSelfFixProvider>;
 
 namespace TSelfGeneric.Test;
 
@@ -12,7 +13,7 @@ public class TSelfGenericParamUnitTests
 {
     string editorConfig = $"""
     [*.cs]
-    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName} = TSelfAttribute
+    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName} = Self.TSelfAttribute
     {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName}.enable = false
     {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName} = TSelf
     {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName}.enable = true
@@ -64,8 +65,8 @@ public class TSelfGenericParamUnitTests
             }
             """;
 
-        var expected = VerifyCS.Diagnostic("TSelfGeneric")
-            .WithSpan(7, 46, 7, 60)
+        var expected = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(0)
             .WithArguments("BadImplementation");
         await VerifyCS.VerifyCodeFixAsync(test, expected, fixTest, editorConfig);
     }
@@ -95,8 +96,8 @@ public class TSelfGenericParamUnitTests
             }
             """;
 
-        var expected = VerifyCS.Diagnostic("TSelfGeneric")
-            .WithSpan(7, 51, 7, 65)
+        var expected = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(0)
             .WithArguments("BadImplementation");
         await VerifyCS.VerifyCodeFixAsync(test, expected, fixTest, editorConfig);
     }
@@ -130,8 +131,8 @@ public class TSelfGenericParamUnitTests
             }
             """;
 
-        var expected = VerifyCS.Diagnostic("TSelfGeneric")
-            .WithSpan(8, 50, 8, 64)
+        var expected = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(0)
             .WithArguments("BadImplementation");
         await VerifyCS.VerifyCodeFixAsync(test, expected, fixTest, editorConfig);
     }
@@ -161,8 +162,8 @@ public class TSelfGenericParamUnitTests
             }
             """;
 
-        var expected = VerifyCS.Diagnostic("TSelfGeneric")
-            .WithSpan(7, 45, 7, 59)
+        var expected = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
+            .WithLocation(0)
             .WithArguments("BadImplementation");
         await VerifyCS.VerifyCodeFixAsync(test, expected, fixTest, editorConfig);
     }

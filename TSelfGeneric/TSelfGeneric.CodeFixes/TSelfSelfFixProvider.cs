@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -10,17 +8,15 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Rename;
-using Microsoft.CodeAnalysis.Text;
 
 namespace TSelfGeneric
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(TSelfGenericCodeFixProvider)), Shared]
-    public sealed class TSelfGenericCodeFixProvider : CodeFixProvider
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(TSelfSelfFixProvider)), Shared]
+    public sealed class TSelfSelfFixProvider : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(TSelfGenericAnalyzer.DiagnosticId); }
+            get { return ImmutableArray.Create(TSelfGenericAnalyzer.DiagnosticId_Self); }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()
@@ -43,9 +39,9 @@ namespace TSelfGeneric
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    title: CodeFixResources.CodeFixTitle,
+                    title: CodeFixResources.CodeFixTSelfSelf,
                     createChangedSolution: c => ChangeToSelfAsync(context.Document, typeArgumentSyntax, c),
-                    equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
+                    equivalenceKey: nameof(CodeFixResources.CodeFixTSelfSelf)),
                 diagnostic);
         }
 

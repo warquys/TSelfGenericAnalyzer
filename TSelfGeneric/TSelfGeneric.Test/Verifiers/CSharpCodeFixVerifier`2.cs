@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -79,16 +80,17 @@ namespace TSelfGeneric.Test
         }
 
         // TODO: Doc
-        public static async Task VerifyCodeFixAsync(string source, DiagnosticResult expected, string fixedSource, string config)
-            => await VerifyCodeFixAsync(source, new[] { expected }, fixedSource, config);
+        public static async Task VerifyCodeFixAsync(string source, DiagnosticResult expected, string fixedSource, string config, string codeAction = null)
+            => await VerifyCodeFixAsync(source, new[] { expected }, fixedSource, config, codeAction);
 
         // TODO: Doc
-        public static async Task VerifyCodeFixAsync(string source, DiagnosticResult[] expected, string fixedSource, string config)
+        public static async Task VerifyCodeFixAsync(string source, DiagnosticResult[] expected, string fixedSource, string config, string codeAction = null)
         {
             var test =  new Test()
             {
                 TestCode = source,
                 FixedCode = fixedSource,
+                CodeActionEquivalenceKey = codeAction,
                 TestState =
                 {
                     AnalyzerConfigFiles =
@@ -111,5 +113,6 @@ namespace TSelfGeneric.Test
             //});
             await test.RunAsync(CancellationToken.None);
         }
+
     }
 }

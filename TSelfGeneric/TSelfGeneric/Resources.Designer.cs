@@ -61,29 +61,56 @@ namespace TSelfGeneric {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Generic parameter TSelf should be the implementing/inheriting class.
+        ///   Recherche une chaîne localisée semblable à The generic parameter should be in the continuity of the TSelf..
         /// </summary>
-        internal static string AnalyzerDescription {
+        internal static string Nested_AnalyzerDescription {
             get {
-                return ResourceManager.GetString("AnalyzerDescription", resourceCulture);
+                return ResourceManager.GetString("Nested_AnalyzerDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à The generic parameter should be {0}.
+        /// </summary>
+        internal static string Nested_AnalyzerMessageFormat {
+            get {
+                return ResourceManager.GetString("Nested_AnalyzerMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à The generic parameter does not respect the continuity of the TSelf.
+        /// </summary>
+        internal static string Nested_AnalyzerTitle {
+            get {
+                return ResourceManager.GetString("Nested_AnalyzerTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Generic parameter TSelf should be the implementing/inheriting class..
+        /// </summary>
+        internal static string Self_AnalyzerDescription {
+            get {
+                return ResourceManager.GetString("Self_AnalyzerDescription", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Recherche une chaîne localisée semblable à Generic parameter TSelf is not &apos;{0}&apos;.
         /// </summary>
-        internal static string AnalyzerMessageFormat {
+        internal static string Self_AnalyzerMessageFormat {
             get {
-                return ResourceManager.GetString("AnalyzerMessageFormat", resourceCulture);
+                return ResourceManager.GetString("Self_AnalyzerMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Recherche une chaîne localisée semblable à Generic parameter TSelf is not the implementing/inheriting class.
         /// </summary>
-        internal static string AnalyzerTitle {
+        internal static string Self_AnalyzerTitle {
             get {
-                return ResourceManager.GetString("AnalyzerTitle", resourceCulture);
+                return ResourceManager.GetString("Self_AnalyzerTitle", resourceCulture);
             }
         }
     }

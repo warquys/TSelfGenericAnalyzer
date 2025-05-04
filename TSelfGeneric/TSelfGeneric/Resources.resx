@@ -117,16 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AnalyzerDescription" xml:space="preserve">
-    <value>Generic parameter TSelf should be the implementing/inheriting class</value>
+  <data name="Self_AnalyzerDescription" xml:space="preserve">
+    <value>Generic parameter TSelf should be the implementing/inheriting class.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
-  <data name="AnalyzerMessageFormat" xml:space="preserve">
+  <data name="Nested_AnalyzerDescription" xml:space="preserve">
+    <value>The generic parameter should be in the continuity of the TSelf.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="Self_AnalyzerMessageFormat" xml:space="preserve">
     <value>Generic parameter TSelf is not '{0}'</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
-  <data name="AnalyzerTitle" xml:space="preserve">
+  <data name="Self_AnalyzerTitle" xml:space="preserve">
     <value>Generic parameter TSelf is not the implementing/inheriting class</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="Nested_AnalyzerMessageFormat" xml:space="preserve">
+    <value>The generic parameter should be {0}</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="Nested_AnalyzerTitle" xml:space="preserve">
+    <value>The generic parameter does not respect the continuity of the TSelf</value>
     <comment>The title of the diagnostic.</comment>
   </data>
 </root>

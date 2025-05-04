@@ -21,11 +21,6 @@
     </ItemGroup>
 	
     <ItemGroup>
-        <Compile Update="Resources.fr.Designer.cs">
-          <DependentUpon>Resources.fr.resx</DependentUpon>
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-        </Compile>
         <Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
         <EmbeddedResource Update="Resources.fr.resx">
           <LastGenOutput>Resources.fr.Designer.cs</LastGenOutput>

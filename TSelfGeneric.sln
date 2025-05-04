@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35913.81 d17.13
+VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSelfGeneric", "TSelfGeneric\TSelfGeneric\TSelfGeneric.csproj", "{D6A41CA2-9C9A-43D9-A0CE-7727733F10BD}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSelfGeneric.Test", "TSelfGeneric\TSelfGeneric.Test\TSelfGeneric.Test.csproj", "{38F2D673-0562-4F38-B21C-1A08C55E5231}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSelfGeneric.Vsix", "TSelfGeneric\TSelfGeneric.Vsix\TSelfGeneric.Vsix.csproj", "{E90C71DC-EB3F-4E1B-B6F7-3AD421DFD525}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SandBox", "SandBox\SandBox.csproj", "{8F1CC299-C4BD-4302-8FCF-6D6401C40C54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{E90C71DC-EB3F-4E1B-B6F7-3AD421DFD525}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E90C71DC-EB3F-4E1B-B6F7-3AD421DFD525}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E90C71DC-EB3F-4E1B-B6F7-3AD421DFD525}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F1CC299-C4BD-4302-8FCF-6D6401C40C54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F1CC299-C4BD-4302-8FCF-6D6401C40C54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F1CC299-C4BD-4302-8FCF-6D6401C40C54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F1CC299-C4BD-4302-8FCF-6D6401C40C54}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
