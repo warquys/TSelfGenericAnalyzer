@@ -7,15 +7,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using static TSelfGeneric.TSelfGenericAnalyzer;
 
 namespace TSelfGeneric
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TSelfGenericAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId_Self = "TSG1";
-        public const string DiagnosticId_Nested = "TSG2";
+        public const string DiagnosticId_Self = "TSG001";
+        public const string DiagnosticId_Nested = "TSG002";
 
         // You can change these strings in the Resources.resx file. If you do not want your analyzer to be localize-able, you can use regular strings for Title and MessageFormat.
         // See https://github.com/dotnet/roslyn/blob/main/docs/analyzers/Localizing%20Analyzers.md for more on localization
@@ -44,20 +43,22 @@ namespace TSelfGeneric
             context.RegisterSyntaxNodeAction(AnalyzeSymbol, SyntaxKind.ClassDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeSymbol, SyntaxKind.InterfaceDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeSymbol, SyntaxKind.StructDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeSymbol, SyntaxKind.RecordStructDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeSymbol, SyntaxKind.RecordDeclaration);
         }
 
         private static void AnalyzeSymbol(SyntaxNodeAnalysisContext context)
         {
-            var classDeclaration = (TypeDeclarationSyntax)context.Node;
-            if (classDeclaration.BaseList == null) return;
+            var typeDeclaration = (TypeDeclarationSyntax)context.Node;
+            if (typeDeclaration.BaseList == null) return;
 
             var config = Config.From(context);
             if (!config.paramNameEnable && !config.attributeEnable) return;
 
-            INamedTypeSymbol classSymbol = context.SemanticModel.GetDeclaredSymbol(classDeclaration);
-            //bool isAbstract = classSymbol.IsAbstract; // I do not see why the class should be abstract, it's better, maybe a case where it's normale?... maybe in the futur
+            INamedTypeSymbol typeSymbol = context.SemanticModel.GetDeclaredSymbol(typeDeclaration);
+            //bool isAbstract = typeSymbol.IsAbstract; // I do not see why the class should be abstract, it's better, maybe a case where it's normale?... maybe in the futur
 
-            foreach (BaseTypeSyntax baseType in classDeclaration.BaseList.Types)
+            foreach (BaseTypeSyntax baseType in typeDeclaration.BaseList.Types)
             {
                 if (baseType.Type is not GenericNameSyntax typeSyntax)
                     continue;
@@ -80,34 +81,44 @@ namespace TSelfGeneric
 
                     if (typeArgument.Kind != SymbolKind.TypeParameter)
                     {
-                        if (!SymbolEqualityComparer.Default.Equals(classSymbol, typeArgument))
-                        {
-                            var diagnostic = Diagnostic.Create(Rule_Self, typeArgumentSyntax.GetLocation(), classDeclaration.Identifier.Text);
-                            context.ReportDiagnostic(diagnostic);
-                            return;
-                        }
+                        if (SymbolEqualityComparer.Default.Equals(typeSymbol, typeArgument))
+                            continue; // TSelf get passed the delcared class. Exacly what we whant
+
+                        ReportSelfDiagnostic(context, typeArgumentSyntax, typeDeclaration.Identifier.Text);
+                        return;
                     }
                     else
                     {
-                        if (!config.AsValidAttribute(typeArgument) && !config.IsValidName(typeArgument))
-                        {
-                            string genericParamAlternative = config switch
-                            {
-                                { attributeEnable: true, paramNameEnable: true } => $"\"{config.paramName}\"|\"[{config.attributeName}] {typeArgument.Name}\"",
-                                { attributeEnable: true } => $"\"[{config.attributeName}] {typeArgument.Name}\"",
-                                { paramNameEnable: true } => $"\"{config.paramName}\"",
-                                _ => throw new NotSupportedException()
-                            };
+                        if (config.AsValidAttribute(typeArgument) || config.IsValidName(typeArgument))
+                            continue; // TSelf is passed down using a valid sytaxe
 
-                            var locationInCurrentDocument = typeArgument.Locations.FirstOrDefault(loc => loc.SourceTree == context.Node.SyntaxTree);
-                            
-                            var diagnostic = Diagnostic.Create(Rule_Nested, locationInCurrentDocument, genericParamAlternative);
-                            context.ReportDiagnostic(diagnostic);
-                            return;
-                        }
+                        ReportNestedDiagnostic(context, config, typeArgument, typeArgumentSyntax);
+                        return;
                     }
                 }
             }
+        }
+
+        private static void ReportSelfDiagnostic(SyntaxNodeAnalysisContext context, TypeSyntax typeArgumentSyntax, string className)
+        {
+            var diagnostic = Diagnostic.Create(Rule_Self, typeArgumentSyntax.GetLocation(), className);
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private static void ReportNestedDiagnostic(SyntaxNodeAnalysisContext context, Config config, ITypeSymbol typeArgument, TypeSyntax typeArgumentSyntax)
+        {
+            string genericParamAlternative = config switch
+            {
+                { attributeEnable: true, paramNameEnable: true } => $"\"{config.paramName}\"|\"[{config.attributeName}] {typeArgument.Name}\"",
+                { attributeEnable: true } => $"\"[{config.attributeName}] {typeArgument.Name}\"",
+                { paramNameEnable: true } => $"\"{config.paramName}\"",
+                _ => throw new NotSupportedException()
+            };
+
+            var locationInCurrentDocument = typeArgument.Locations.First(loc => loc.SourceTree == context.Node.SyntaxTree);
+
+            var diagnostic = Diagnostic.Create(Rule_Nested, locationInCurrentDocument, genericParamAlternative);
+            context.ReportDiagnostic(diagnostic);
         }
 
         public struct Config
@@ -166,7 +177,7 @@ namespace TSelfGeneric
 
             public bool AsValidAttribute(ITypeSymbol typeArgument)
             {
-                var typeSymbol = this.attributeSymbol;
+                var typeSymbol = attributeSymbol;
                 return attributeEnable
                       && typeArgument != null
                       && typeArgument.GetAttributes()

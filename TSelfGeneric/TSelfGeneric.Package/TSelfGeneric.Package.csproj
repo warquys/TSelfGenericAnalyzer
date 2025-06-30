@@ -1,42 +1,49 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <IncludeBuildOutput>false</IncludeBuildOutput>
-        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
 
-    <PropertyGroup>
-        <PackageId>TSelfGeneric</PackageId>
-        <PackageVersion>1.0.0.0</PackageVersion>
-        <Authors>Valentin Thomas</Authors>
+	<PropertyGroup>
+		<PackageId>TSelfGeneric</PackageId>
+		<PackageVersion>1.0.0.0</PackageVersion>
+		<Authors>Valentin Thomas</Authors>
 		<RepositoryUrl>http://github.com/warquys/TSelfGenericAnalyzer</RepositoryUrl>
-	    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-	    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <Description>An analyzer that warns you when not following the TSelf pattern during the implementation of a generic interface or the inheritance of a generic class. The TSelf pattern is when you have a generic parameter called TSelf which should be implemented. That is what .NET does with Generic Math.</Description>
-        <PackageReleaseNotes>http://github.com/warquys/TSelfGenericAnalyzer/tree/main/RELEASE-NOTES.md</PackageReleaseNotes>
-        <PackageTags>TSelfGeneric, analyzers</PackageTags>
-        <DevelopmentDependency>true</DevelopmentDependency>
-        <NoPackageAnalysis>true</NoPackageAnalysis>
+		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<Description>An analyzer that warns you when not following the TSelf pattern during the implementation of a generic interface or the inheritance of a generic class. The TSelf pattern is when you have a generic parameter called TSelf which should be implemented. That is what .NET does with Generic Math.</Description>
+		<PackageReleaseNotes>http://github.com/warquys/TSelfGenericAnalyzer/tree/main/RELEASE-NOTES.md</PackageReleaseNotes>
+		<PackageTags>TSelfGeneric, analyzers</PackageTags>
+		<DevelopmentDependency>true</DevelopmentDependency>
+		<NoPackageAnalysis>true</NoPackageAnalysis>
 
-        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
-    </PropertyGroup>
+		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\TSelfGeneric.CodeFixes\TSelfGeneric.CodeFixes.csproj" />
-        <ProjectReference Include="..\TSelfGeneric\TSelfGeneric.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.0.0-1.25277.114">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
 
-    <ItemGroup>
-        <None Update="tools\*.ps1" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="" />
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\TSelfGeneric.CodeFixes\TSelfGeneric.CodeFixes.csproj" />
+		<ProjectReference Include="..\TSelfGeneric\TSelfGeneric.csproj" />
+	</ItemGroup>
 
-    <Target Name="_AddAnalyzersToOutput">
-        <ItemGroup>
-            <TfmSpecificPackageFile Include="$(OutputPath)\TSelfGeneric.dll" PackagePath="analyzers/dotnet/cs" />
-            <TfmSpecificPackageFile Include="$(OutputPath)\TSelfGeneric.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
-        </ItemGroup>
-    </Target>
+	<ItemGroup>
+		<None Update="tools\*.ps1" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<Target Name="_AddAnalyzersToOutput">
+		<ItemGroup>
+			<TfmSpecificPackageFile Include="$(OutputPath)\TSelfGeneric.dll" PackagePath="analyzers/dotnet/cs" />
+			<TfmSpecificPackageFile Include="$(OutputPath)\TSelfGeneric.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
+		</ItemGroup>
+	</Target>
 
 </Project>

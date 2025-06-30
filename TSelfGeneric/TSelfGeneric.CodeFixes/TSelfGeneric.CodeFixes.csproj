@@ -1,33 +1,37 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
+	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>11</LangVersion>
 
 		<IsPackable>false</IsPackable>
-        <RootNamespace>TSelfGeneric</RootNamespace>
-    </PropertyGroup>
+		<RootNamespace>TSelfGeneric</RootNamespace>
+	</PropertyGroup>
 
-    <ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.3.1" />
-    </ItemGroup>
-    
-    <ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.0.0-1.25277.114">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\TSelfGeneric\TSelfGeneric.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
+	</ItemGroup>
+
+	<ItemGroup>
 		<Compile Update="CodeFixResources.fr.Designer.cs">
-            <DependentUpon>CodeFixResources.fr.resx</DependentUpon>
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-        </Compile>
-        <Compile Update="CodeFixResources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="CodeFixResources.resx" />
-        <EmbeddedResource Update="CodeFixResources.fr.resx">
-            <LastGenOutput>CodeFixResources.fr.Designer.cs</LastGenOutput>
-            <Generator>ResXFileCodeGenerator</Generator>
-        </EmbeddedResource>
-        <EmbeddedResource Update="CodeFixResources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="CodeFixResources.Designer.cs" />
-    </ItemGroup>
+			<DependentUpon>CodeFixResources.fr.resx</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</Compile>
+		<Compile Update="CodeFixResources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="CodeFixResources.resx" />
+		<EmbeddedResource Update="CodeFixResources.fr.resx">
+			<LastGenOutput>CodeFixResources.fr.Designer.cs</LastGenOutput>
+			<Generator>ResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+		<EmbeddedResource Update="CodeFixResources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="CodeFixResources.Designer.cs" />
+	</ItemGroup>
 
 </Project>

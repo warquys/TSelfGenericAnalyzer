@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
@@ -11,6 +12,8 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Differencing;
+using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Rename;
 
@@ -53,97 +56,58 @@ namespace TSelfGeneric
             // Register a code action that will invoke the fix.
             if (config.paramNameEnable && config.paramName != null)
             {
+                var paramName = config.paramName;
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         title: CodeFixResources.CodeFixTitleTSelfNestedName,
-                        createChangedSolution: c => ChangeNameToTSelfAsync(config, context.Document, typeArgumentSyntax, c),
+                        createChangedSolution: c => ChangeNameToTSelfAsync(paramName, context.Document, typeArgumentSyntax, c),
                         equivalenceKey: equivalenceKeyByName),
                     diagnostic);
             }
 
             if (config.attributeEnable && config.attributeSymbol != null)
             {
+                var attribute = config.attributeSymbol;
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         title: CodeFixResources.CodeFixTitleTSelfNestedAttribute,
-                        createChangedSolution: c => ChangeAddAttributeTSelfAsync(config, context.Document, typeArgumentSyntax, c),
+                        createChangedSolution: c => ChangeAddAttributeTSelfAsync(attribute, context.Document, typeArgumentSyntax, c),
                         equivalenceKey: equivalenceKeyByAttribute),
                     diagnostic);
             }
         }
 
-        private async Task<Solution> ChangeAddAttributeTSelfAsync(TSelfGenericAnalyzer.Config config, Document document, TypeParameterSyntax typeParameter, CancellationToken cancellationToken)
+        private async Task<Solution> ChangeAddAttributeTSelfAsync(INamedTypeSymbol attributeSymbol, Document document, TypeParameterSyntax typeParameter, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+            var generator = editor.Generator;
+            //var syntaxRef = attributeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
+            //if (syntaxRef == null)
+            //    return document.Project.Solution;
+            //var attributeDeclarationNode = await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false);
+            //var attribute = generator.Attribute(attributeDeclarationNode);
 
-            // Take the namespace before editing the document.
-            var @namespace = await GetNamespaceAsync(typeParameter, document, cancellationToken);
-            var attributeName = Regex.Replace(config.attributeSymbol.Name, "(\\S+)Attribute$", "$1");
-            var attribute = SyntaxFactory.Attribute(SyntaxFactory.IdentifierName(attributeName));
-            // TODO: check the consequence if the attribute is an attribute that do not existe
-            var attributeList = SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(attribute));
-            var newTypeParameter = typeParameter.AddAttributeLists(attributeList);
+            
+            // TODO: In case of an attribute in an other namesapce, the attribute will not be referenced
+            var attributeName = Regex.Replace(attributeSymbol.Name, "(\\S+)Attribute$", "$1");
+            var attribute = generator.Attribute(generator.IdentifierName(attributeName));
+            var attributeSyntax = SyntaxFactory.Attribute(SyntaxFactory.IdentifierName(attributeName));
 
-            var newRoot = root.ReplaceNode(typeParameter, newTypeParameter);
-            var newDocument = document.WithSyntaxRoot(newRoot);
-            newDocument = await EnsureAttributeAccessibilityAsync(config.attributeSymbol, @namespace, newDocument, cancellationToken).ConfigureAwait(false);
-
-            return newDocument.Project.Solution;
+            var newTypeParameter = generator.AddAttributes(typeParameter, attribute) as TypeParameterSyntax;
+            newTypeParameter = newTypeParameter.WithAdditionalAnnotations();
+            editor.ReplaceNode(typeParameter, newTypeParameter);
+            return editor.GetChangedDocument().Project.Solution;
         }
 
-        private async Task<Document> EnsureAttributeAccessibilityAsync(
-            INamedTypeSymbol attribute,
-            INamespaceSymbol @namespace,
-            Document document,
-            CancellationToken cancellationToken)
-        {
-            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-
-            if (SymbolEqualityComparer.Default.Equals(@namespace, attribute.ContainingNamespace))
-                return document;
-
-            if (root is not CompilationUnitSyntax compilationUnit)
-                return document;
-            
-            var namespaceName = attribute.ContainingNamespace.ToDisplayString();
-            var usings = root.DescendantNodes().OfType<UsingDirectiveSyntax>();
-            if (usings.Any(u => u.Name.ToString() == namespaceName))
-                return document;
-
-            var newUsing = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(namespaceName));
-            var newCompilationUnit = compilationUnit.AddUsings(newUsing);
-            var newDocument = document.WithSyntaxRoot(newCompilationUnit);
-            return newDocument;
-        }
-
-        private async Task<INamespaceSymbol> GetNamespaceAsync(TypeParameterSyntax targetTypeParameter, Document document, CancellationToken cancellationToken)
-        {
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-            if (targetTypeParameter.SyntaxTree != semanticModel.SyntaxTree)
-                throw new InvalidOperationException("targetTypeParameter does not belong to the same SyntaxTree as the SemanticModel.");
-
-            var symbol = semanticModel.GetDeclaredSymbol(targetTypeParameter, cancellationToken);
-            if (symbol == null)
-                return null;
-            
-            if (symbol.ContainingNamespace != null)
-                return symbol.ContainingNamespace;
-            
-            if (symbol is ITypeParameterSymbol typeParameterSymbol)
-                return typeParameterSymbol.ContainingSymbol.ContainingNamespace;
-
-            return null;
-        }
-
-        private async Task<Solution> ChangeNameToTSelfAsync(TSelfGenericAnalyzer.Config config, Document document, TypeParameterSyntax typeParameter, CancellationToken cancellationToken)
+        private async Task<Solution> ChangeNameToTSelfAsync(string name, Document document, TypeParameterSyntax typeParameter, CancellationToken cancellationToken)
         {
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var typeSymbol = semanticModel.GetDeclaredSymbol(typeParameter, cancellationToken);
             var originalSolution = document.Project.Solution;
-            var optionSet = originalSolution.Workspace.Options;
-            var newSolution = await Renamer.RenameSymbolAsync(document.Project.Solution, typeSymbol, config.paramName, optionSet, cancellationToken).ConfigureAwait(false);
+            // RenameOptions SymbolRenameOptions  
+            var option = new SymbolRenameOptions();
+            var newSolution = await Renamer.RenameSymbolAsync(document.Project.Solution, typeSymbol, option, name, cancellationToken).ConfigureAwait(false);
             return newSolution;
         }
     }

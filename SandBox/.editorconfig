@@ -1,11 +1,12 @@
 ﻿[*.cs]
 
-# TSG1: Generic parameter TSelf is not the implementing/inheriting class
-dotnet_diagnostic.TSG1.severity = error
-dotnet_tselfgeneric.tself_attribute_name = SandBox.TSelfAttribute
+# TSG001: Generic parameter TSelf is not the implementing/inheriting class
+dotnet_diagnostic.TSG001.severity = error
+dotnet_tselfgeneric.tself_attribute_name = SandBox.Attributes.TSelfAttribute
 dotnet_tselfgeneric.tself_attribute_name.enable = true
 dotnet_tselfgeneric.tself_param_name = TSelf
 dotnet_tselfgeneric.tself_param_name.enable = true
+
 [*.cs]
 #### Styles de nommage ####
 
@@ -148,3 +149,8 @@ dotnet_style_require_accessibility_modifiers = for_non_interface_members:silent
 dotnet_style_coalesce_expression = true:suggestion
 tab_width = 4
 indent_size = 4
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+end_of_line = crlf
+
+# CA1032: Implémenter des constructeurs d'exception standard
+dotnet_diagnostic.CA1032.severity = warning
