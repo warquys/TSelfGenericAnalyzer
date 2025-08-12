@@ -60,7 +60,8 @@ TODO:
 - [x] support the class delcaration
 - [x] support the interface delcaration
 - [x] support the struct delcaration
+- [ ] fix auto add the using when adding the TSelfAttribute
 - [ ] review the naming of error and message
 - [ ] publish
 
-- [ ] Fix string localisation bug
+- [ ] fix string localisation bug (Using US and not FR when set to FR)
