@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Composition;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,9 +9,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Differencing;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Rename;
 
 namespace TSelfGeneric
@@ -52,9 +47,21 @@ namespace TSelfGeneric
             var tree = await context.Document.GetSyntaxTreeAsync().ConfigureAwait(false);
             var configProvider = context.Document.Project.AnalyzerOptions.AnalyzerConfigOptionsProvider;
             var config = TSelfGenericAnalyzer.Config.From(configProvider, tree, semanticModel.Compilation);
+            // TODO: Use this and remove the config diagnostic.Properties
+            // Register code actions that will invoke the fix.
 
-            // Register a code action that will invoke the fix.
-            if (config.paramNameEnable && config.paramName != null)
+            if (config.attributeEnable && config.attributeSymbol != null)
+            {
+                var attribute = config.attributeSymbol;
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: CodeFixResources.CodeFixTitleTSelfNestedAttribute,
+                        createChangedSolution: c => AddAttributeTSelfAsync(attribute, context.Document, typeArgumentSyntax, c),
+                        equivalenceKey: equivalenceKeyByAttribute),
+                    diagnostic);
+            }
+
+            if (config.paramNameEnable && !string.IsNullOrWhiteSpace(config.paramName))
             {
                 var paramName = config.paramName;
                 context.RegisterCodeFix(
@@ -64,20 +71,9 @@ namespace TSelfGeneric
                         equivalenceKey: equivalenceKeyByName),
                     diagnostic);
             }
-
-            if (config.attributeEnable && config.attributeSymbol != null)
-            {
-                var attribute = config.attributeSymbol;
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        title: CodeFixResources.CodeFixTitleTSelfNestedAttribute,
-                        createChangedSolution: c => ChangeAddAttributeTSelfAsync(attribute, context.Document, typeArgumentSyntax, c),
-                        equivalenceKey: equivalenceKeyByAttribute),
-                    diagnostic);
-            }
         }
 
-        private async Task<Solution> ChangeAddAttributeTSelfAsync(INamedTypeSymbol attributeSymbol, Document document, TypeParameterSyntax typeParameter, CancellationToken cancellationToken)
+        private async Task<Solution> AddAttributeTSelfAsync(INamedTypeSymbol attributeSymbol, Document document, TypeParameterSyntax typeParameter, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
