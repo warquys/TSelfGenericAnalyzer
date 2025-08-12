@@ -128,9 +128,9 @@ namespace TSelfGeneric
             public const string AttributeName = "tself_attribute_name";
 
             public const string DefaultTargetGenericArg = "TSelf";
-            public const string DefaultTargetAttributeName = "TSelfAttribute";
+            public const string DefaultTargetAttributeFullName = "TSelfAttribute";
             public const bool DefaultTargetGenericArgEnable = true;
-            public const bool DefaultTargetAttributeEnable = false;
+            public const bool DefaultTargetAttributeEnable = true;
 
             public string paramName;
             public bool paramNameEnable;
@@ -142,14 +142,25 @@ namespace TSelfGeneric
             public INamedTypeSymbol attributeSymbol;
 #pragma warning restore RS1008 // Évitez de stocker des données par compilation dans les champs d'un analyseur de diagnostic.
 
+            public static Config Default(Compilation compilation)
+            {
+                var config = new Config();
+                config.paramNameEnable = DefaultTargetGenericArgEnable;
+                config.paramName = DefaultTargetGenericArg;
+                config.attributeEnable = DefaultTargetAttributeEnable;
+                config.attributeName = DefaultTargetAttributeFullName;
+                config.attributeSymbol = compilation.GetTypeByMetadataName(DefaultTargetAttributeFullName);
+                return config;
+            }
+
             public static Config From(SyntaxNodeAnalysisContext context)
                 => From(context.Options.AnalyzerConfigOptionsProvider, context.Node.SyntaxTree, context.Compilation);
 
             public static Config From(AnalyzerConfigOptionsProvider provider, SyntaxTree syntaxTree, Compilation compilation)
             {
+#if CONFIG
                 var config = new Config();
                 var options = provider.GetOptions(syntaxTree);
-
                 if (!options.TryGetValue($"{Root}.{ParamName}.enable", out var rowRequiredParamNameEnable)
                     || !bool.TryParse(rowRequiredParamNameEnable, out config.paramNameEnable))
                     config.paramNameEnable = DefaultTargetGenericArgEnable;
@@ -167,6 +178,9 @@ namespace TSelfGeneric
                 config.attributeSymbol = compilation.GetTypeByMetadataName(config.attributeName);
 
                 return config;
+#else
+                return Default(compilation);
+#endif
             }
 
             public bool IsValidName(ITypeSymbol typeArgument)

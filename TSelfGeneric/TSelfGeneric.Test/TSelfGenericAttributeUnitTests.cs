@@ -13,25 +13,17 @@ namespace TSelfGeneric.Test;
 [TestClass]
 public class TSelfGenericAttributeUnitTests
 {
-    string editorConfig = $"""
-    [*.cs]
-    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName} = Self.TSelfAttribute
-    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName}.enable = true
-    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName} = TSelf
-    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName}.enable = false
-    """;
-
     [TestMethod]
     public async Task TestValidCase()
     {
         var test = """
+            using System;
+            
+            [AttributeUsage(AttributeTargets.GenericParameter)]
+            public class TSelfAttribute : Attribute { }
+
             namespace Self
             {
-                using System;
-            
-                [AttributeUsage(AttributeTargets.GenericParameter)]
-                public class TSelfAttribute : Attribute { }
-
                 interface ISelfRequested<[TSelf] T> where T : ISelfRequested<T> { }    
                 
                 class SelfRequested<[TSelf] T> where T : SelfRequested<T> { }
@@ -46,20 +38,20 @@ public class TSelfGenericAttributeUnitTests
             }
             """;
 
-        await VerifyCS.VerifyAnalyzerAsync(test, editorConfig);
+        await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
     [TestMethod]
     public async Task TestAttributeTSelfDetection()
     {
         var test = """
+            using System;
+            
+            [AttributeUsage(AttributeTargets.GenericParameter)]
+            public class TSelfAttribute : Attribute { }
+
             namespace Self
             {
-                using System;
-
-                [AttributeUsage(AttributeTargets.GenericParameter)]
-                public class TSelfAttribute : Attribute { }
-            
                 interface ISelfRequested<[TSelf] T> where T : ISelfRequested<T> { }
 
                 class Implementation : ISelfRequested<Implementation> { }
@@ -73,13 +65,13 @@ public class TSelfGenericAttributeUnitTests
             """;
 
         var fixTest = """
+            using System;
+            
+            [AttributeUsage(AttributeTargets.GenericParameter)]
+            public class TSelfAttribute : Attribute { }
+
             namespace Self
             {
-                using System;
-
-                [AttributeUsage(AttributeTargets.GenericParameter)]
-                public class TSelfAttribute : Attribute { }
-
                 interface ISelfRequested<[TSelf] T> where T : ISelfRequested<T> { }
             
                 class Implementation : ISelfRequested<Implementation> { }
@@ -101,7 +93,7 @@ public class TSelfGenericAttributeUnitTests
         var expected2 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Self)
             .WithLocation(2)
             .WithArguments("implementation");
-        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig);
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest);
     }
 
 }

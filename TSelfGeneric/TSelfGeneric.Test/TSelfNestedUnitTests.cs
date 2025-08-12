@@ -16,7 +16,7 @@ public class TSelfNestedUnitTests
 {
     string editorConfig = $"""
     [*.cs]
-    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName} = Self.TSelfAttribute
+    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName} = TSelfAttribute
     {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName}.enable = true
     {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName} = TSelf
     {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName}.enable = true
@@ -26,12 +26,13 @@ public class TSelfNestedUnitTests
     public async Task TestValidCase()
     {
         var test = """
+            using System;
+            
+            [AttributeUsage(AttributeTargets.GenericParameter)]
+            public class TSelfAttribute : Attribute { }
+
             namespace Self
             {
-                using System;
-            
-                [AttributeUsage(AttributeTargets.GenericParameter)]
-                public class TSelfAttribute : Attribute { }
 
                 interface ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }    
                 
@@ -60,19 +61,20 @@ public class TSelfNestedUnitTests
             """;
 
         await VerifyCS.VerifyAnalyzerAsync(test, editorConfig);
+        await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
     [TestMethod]
     public async Task InvalidValidNameCaseFixAttributed()
     {
         var test = """
+            using System;
+            
+            [AttributeUsage(AttributeTargets.GenericParameter)]
+            public class TSelfAttribute : Attribute { }
+
             namespace Self
             {
-                using System;
-
-                [AttributeUsage(AttributeTargets.GenericParameter)]
-                public class TSelfAttribute : Attribute { }
-
                 interface ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }    
 
                 class Implementation<TSelf> : ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }
@@ -86,13 +88,13 @@ public class TSelfNestedUnitTests
             """;
 
         var fixTest = """
+            using System;
+            
+            [AttributeUsage(AttributeTargets.GenericParameter)]
+            public class TSelfAttribute : Attribute { }
+
             namespace Self
             {
-                using System;
-
-                [AttributeUsage(AttributeTargets.GenericParameter)]
-                public class TSelfAttribute : Attribute { }
-
                 interface ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }    
 
                 class Implementation<TSelf> : ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }
@@ -107,27 +109,28 @@ public class TSelfNestedUnitTests
 
         var expected0 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Nested)
              .WithLocation(0)
-             .WithArguments("\"TSelf\"|\"[Self.TSelfAttribute] T\"");
+             .WithArguments("\"TSelf\"|\"[TSelfAttribute] T\"");
         var expected1 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Nested)
              .WithLocation(1)
-             .WithArguments("\"TSelf\"|\"[Self.TSelfAttribute] T\"");
+             .WithArguments("\"TSelf\"|\"[TSelfAttribute] T\"");
         var expected2 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Nested)
              .WithLocation(2)
-             .WithArguments("\"TSelf\"|\"[Self.TSelfAttribute] T\"");
+             .WithArguments("\"TSelf\"|\"[TSelfAttribute] T\"");
         await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig, TSelfNestedFixProvider.equivalenceKeyByAttribute);
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, string.Empty, codeAction: TSelfNestedFixProvider.equivalenceKeyByAttribute);
     }
 
     [TestMethod]
     public async Task InvalidValidNameCaseFixName()
     {
         var test = """
+            using System;
+            
+            [AttributeUsage(AttributeTargets.GenericParameter)]
+            public class TSelfAttribute : Attribute { }
+
             namespace Self
             {
-                using System;
-
-                [AttributeUsage(AttributeTargets.GenericParameter)]
-                public class TSelfAttribute : Attribute { }
-
                 interface ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }    
 
                 class Implementation<TSelf> : ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }
@@ -141,13 +144,13 @@ public class TSelfNestedUnitTests
             """;
 
         var fixTest = """
+            using System;
+
+            [AttributeUsage(AttributeTargets.GenericParameter)]
+            public class TSelfAttribute : Attribute { }
+
             namespace Self
             {
-                using System;
-
-                [AttributeUsage(AttributeTargets.GenericParameter)]
-                public class TSelfAttribute : Attribute { }
-
                 interface ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }    
 
                 class Implementation<TSelf> : ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }
@@ -162,13 +165,14 @@ public class TSelfNestedUnitTests
 
         var expected0 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Nested)
              .WithLocation(0)
-             .WithArguments("\"TSelf\"|\"[Self.TSelfAttribute] T\"");
+             .WithArguments("\"TSelf\"|\"[TSelfAttribute] T\"");
         var expected1 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Nested)
              .WithLocation(1)
-             .WithArguments("\"TSelf\"|\"[Self.TSelfAttribute] T\"");
+             .WithArguments("\"TSelf\"|\"[TSelfAttribute] T\"");
         var expected2 = VerifyCS.Diagnostic(TSelfGenericAnalyzer.DiagnosticId_Nested)
              .WithLocation(2)
-             .WithArguments("\"TSelf\"|\"[Self.TSelfAttribute] T\"");
+             .WithArguments("\"TSelf\"|\"[TSelfAttribute] T\"");
         await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig, TSelfNestedFixProvider.equivalenceKeyByName);
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, string.Empty, TSelfNestedFixProvider.equivalenceKeyByName);
     }
 }

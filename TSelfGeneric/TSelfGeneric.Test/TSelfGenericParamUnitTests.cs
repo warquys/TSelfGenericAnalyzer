@@ -14,7 +14,7 @@ public class TSelfGenericParamUnitTests
 {
     string editorConfig = $"""
     [*.cs]
-    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName} = Self.TSelfAttribute
+    {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName} = TSelfAttribute
     {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName}.enable = false
     {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName} = TSelf
     {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName}.enable = true
@@ -44,6 +44,7 @@ public class TSelfGenericParamUnitTests
             """;
 
         await VerifyCS.VerifyAnalyzerAsync(test, editorConfig);
+        await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
     //Diagnostic and CodeFix both triggered and checked for
@@ -90,6 +91,7 @@ public class TSelfGenericParamUnitTests
             .WithLocation(2)
             .WithArguments("badImplementation");
         await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig);
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest);
     }
 
     [TestMethod]
@@ -135,6 +137,7 @@ public class TSelfGenericParamUnitTests
             .WithLocation(2)
             .WithArguments("badImplementation");
         await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig);
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest);
     }
 
     [TestMethod]
@@ -180,6 +183,7 @@ public class TSelfGenericParamUnitTests
             .WithLocation(2)
             .WithArguments("badImplementation");
         await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig);
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest);
     }
 
     [TestMethod]
@@ -211,6 +215,7 @@ public class TSelfGenericParamUnitTests
             .WithLocation(0)
             .WithArguments("BadImplementation");
         await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0 }, fixTest, editorConfig);
+        await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0 }, fixTest);
     }
 
     //No diagnostics expected to show up
@@ -227,5 +232,6 @@ public class TSelfGenericParamUnitTests
             """;
 
         await VerifyCS.VerifyAnalyzerAsync(test, editorConfig);
+        await VerifyCS.VerifyAnalyzerAsync(test);
     }
 }
