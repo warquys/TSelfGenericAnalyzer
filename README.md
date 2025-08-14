@@ -1,6 +1,6 @@
 # TSelfGeneric Analyzer
 
-Naming an generic attribute `TSelf` (Case Insensitivity) the anazlyser will check if the inheriting class or implenting interface got passed the class implenting it or a `TSelf` generic argument. Only C# is supported.
+When naming an generic attribute `TSelf` (Case Insensitivity) the anazlyser will check if the inheriting class or implenting interface is implenting it or is a `TSelf` generic argument. Only C# is now supported.
 
 ```cs
 interface ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }
@@ -21,7 +21,7 @@ abstract class NotImplementation<TSelf> : ISelfRequested<TSelf> where TSelf : No
 If you do not like [duck typing](https://en.wikipedia.org/wiki/Duck_typing) you can use an attriubte on the generic param.
 
 ```cs
-// You need to define it your self
+// You need to define it yourself outisde an namsapce
 [AttributeUsage(AttributeTargets.GenericParameter)]
 public class TSelfAttribute : Attribute { }
 
@@ -34,8 +34,9 @@ class BadImplementation : ISelfRequested<Implementation> { }
 //                      Warning here, should be BadImplementation class.
 ```
 
+<!--
 This feature is not enable by default.
-You can configure the analyser following this .editorconfig (default one is showed):
+You can configure the analyser like following.editorconfig (default one is showed):
 
 ```conf
 [*.cs]
@@ -44,8 +45,9 @@ dotnet_tselfgeneric.tself_attribute_name.enable = false
 dotnet_tselfgeneric.tself_param_name = TSelf
 dotnet_tselfgeneric.tself_param_name.enable = true
 ```
+-->
 
-Not inheriting the aspect of the TSelf when passing a generic argument will result to an warning.
+Not inheriting the aspect of the TSelf when passing a generic argument will result in a warning.
 
 ```cs
 interface ISelfRequested<TSelf> where TSelf : ISelfRequested<TSelf> { }
@@ -57,11 +59,4 @@ class SomeImplementation<T> : ISelfRequested<T> where T : ISelfRequested<T> { }
 
 TODO:
 
-- [x] support the class delcaration
-- [x] support the interface delcaration
-- [x] support the struct delcaration
-- [ ] fix auto add the using when adding the TSelfAttribute
-- [ ] review the naming of error and message
-- [ ] publish
-
-- [ ] fix string localisation bug (Using US and not FR when set to FR)
+- [ ] Fix string localisation bug (Using US and not FR when set to FR)

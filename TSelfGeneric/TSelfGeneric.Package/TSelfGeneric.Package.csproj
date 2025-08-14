@@ -11,7 +11,7 @@
 		<PackageId>TSelfGeneric</PackageId>
 		<PackageVersion>1.0.0.0</PackageVersion>
 		<Authors>Valentin Thomas</Authors>
-		<RepositoryUrl>http://github.com/warquys/TSelfGenericAnalyzer</RepositoryUrl>
+		<RepositoryUrl>https://github.com/warquys/TSelfGenericAnalyzer</RepositoryUrl>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Description>An analyzer that warns you when not following the TSelf pattern during the implementation of a generic interface or the inheritance of a generic class. The TSelf pattern is when you have a generic parameter called TSelf which should be implemented. That is what .NET does with Generic Math.</Description>
@@ -19,20 +19,21 @@
 		<PackageTags>TSelfGeneric, analyzers</PackageTags>
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<NoPackageAnalysis>true</NoPackageAnalysis>
-
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.0.0-1.25277.114">
-	    <PrivateAssets>all</PrivateAssets>
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.0.0-1.25277.114">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\TSelfGeneric.CodeFixes\TSelfGeneric.CodeFixes.csproj" />
 		<ProjectReference Include="..\TSelfGeneric\TSelfGeneric.csproj" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
