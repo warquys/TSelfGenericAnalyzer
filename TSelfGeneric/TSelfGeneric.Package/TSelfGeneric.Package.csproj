@@ -12,10 +12,11 @@
 		<PackageVersion>1.0.0.0</PackageVersion>
 		<Authors>Valentin Thomas</Authors>
 		<RepositoryUrl>https://github.com/warquys/TSelfGenericAnalyzer</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/warquys/TSelfGenericAnalyzer</PackageProjectUrl>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Description>An analyzer that warns you when not following the TSelf pattern during the implementation of a generic interface or the inheritance of a generic class. The TSelf pattern is when you have a generic parameter called TSelf which should be implemented. That is what .NET does with Generic Math.</Description>
-		<PackageReleaseNotes>http://github.com/warquys/TSelfGenericAnalyzer/tree/main/RELEASE-NOTES.md</PackageReleaseNotes>
+		<PackageReleaseNotes>https://github.com/warquys/TSelfGenericAnalyzer/blob/main/RELEASE-NOTES.md#version-100--august-14-2025</PackageReleaseNotes>
 		<PackageTags>TSelfGeneric, analyzers</PackageTags>
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<NoPackageAnalysis>true</NoPackageAnalysis>
