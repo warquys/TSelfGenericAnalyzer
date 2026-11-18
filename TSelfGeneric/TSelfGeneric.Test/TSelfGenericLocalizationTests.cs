@@ -64,4 +64,23 @@ public class TSelfGenericLocalizationTests
             CultureInfo.CurrentUICulture = originalUICulture;
         }
     }
+
+    [DataTestMethod]
+    [DataRow("es")]
+    [DataRow("de")]
+    [DataRow("it")]
+    [DataRow("pt-BR")]
+    public void AdditionalLanguageResourcesAreAvailable(string cultureName)
+    {
+        var culture = CultureInfo.GetCultureInfo(cultureName);
+        var analyzerManager = new ResourceManager("TSelfGeneric.Resources", typeof(TSelfGenericAnalyzer).Assembly);
+        var codeFixManager = new ResourceManager(
+            "TSelfGeneric.CodeFixResources",
+            typeof(TSelfNestedFixProvider).Assembly);
+
+        Assert.IsFalse(string.IsNullOrWhiteSpace(analyzerManager.GetString("Self_AnalyzerTitle", culture)));
+        Assert.IsFalse(string.IsNullOrWhiteSpace(analyzerManager.GetString("Nested_AnalyzerMessageFormat", culture)));
+        Assert.IsFalse(string.IsNullOrWhiteSpace(codeFixManager.GetString("CodeFixTSelfSelf", culture)));
+        Assert.IsFalse(string.IsNullOrWhiteSpace(codeFixManager.GetString("CodeFixTitleTSelfNestedName", culture)));
+    }
 }
