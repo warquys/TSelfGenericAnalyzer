@@ -1,4 +1,3 @@
-﻿#if CONFIG
 using System;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -103,5 +102,43 @@ public class TSelfGenericConfigAttributeTests
             .WithArguments("implementation");
         await VerifyCS.VerifyCodeFixAsync(test, new DiagnosticResult[] { expected0, expected1, expected2 }, fixTest, editorConfig);
     }
+
+    [TestMethod]
+    public async Task TestMultipleConfiguredNames()
+    {
+        var multipleNamesEditorConfig = $"""
+        [*.cs]
+        {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName} = First.TSelfAttribute; Second.SelfAttribute
+        {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.AttributeName}.enable = true
+        {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName} = TSelf, TSelfType
+        {TSelfGenericAnalyzer.Config.Root}.{TSelfGenericAnalyzer.Config.ParamName}.enable = true
+        """;
+
+        var test = """
+            using System;
+
+            namespace First
+            {
+                [AttributeUsage(AttributeTargets.GenericParameter)]
+                public class TSelfAttribute : Attribute { }
+            }
+
+            namespace Second
+            {
+                [AttributeUsage(AttributeTargets.GenericParameter)]
+                public class SelfAttribute : Attribute { }
+            }
+
+            interface IFirst<[First.TSelf] T> where T : IFirst<T> { }
+            interface ISecond<[Second.Self] T> where T : ISecond<T> { }
+
+            class FirstImplementation : IFirst<FirstImplementation> { }
+            class SecondImplementation : ISecond<SecondImplementation> { }
+
+            abstract class GenericImplementation<TSelfType> : IFirst<TSelfType>
+                where TSelfType : GenericImplementation<TSelfType> { }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test, multipleNamesEditorConfig);
+    }
 }
-#endif
