@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -50,26 +49,30 @@ namespace TSelfGeneric
             // TODO: Use this and remove the config diagnostic.Properties
             // Register code actions that will invoke the fix.
 
-            if (config.attributeEnable && config.attributeSymbol != null)
+            if (config.attributeEnable)
             {
-                var attribute = config.attributeSymbol;
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        title: CodeFixResources.CodeFixTitleTSelfNestedAttribute,
-                        createChangedSolution: c => AddAttributeTSelfAsync(attribute, context.Document, typeArgumentSyntax, c),
-                        equivalenceKey: equivalenceKeyByAttribute),
-                    diagnostic);
+                foreach (var attribute in config.attributeSymbols)
+                {
+                    context.RegisterCodeFix(
+                        CodeAction.Create(
+                            title: $"{CodeFixResources.CodeFixTitleTSelfNestedAttribute} ({attribute.Name})",
+                            createChangedSolution: c => AddAttributeTSelfAsync(attribute, context.Document, typeArgumentSyntax, c),
+                            equivalenceKey: equivalenceKeyByAttribute + attribute.ToDisplayString()),
+                        diagnostic);
+                }
             }
 
-            if (config.paramNameEnable && !string.IsNullOrWhiteSpace(config.paramName))
+            if (config.paramNameEnable)
             {
-                var paramName = config.paramName;
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        title: CodeFixResources.CodeFixTitleTSelfNestedName,
-                        createChangedSolution: c => ChangeNameToTSelfAsync(paramName, context.Document, typeArgumentSyntax, c),
-                        equivalenceKey: equivalenceKeyByName),
-                    diagnostic);
+                foreach (var paramName in config.paramNames)
+                {
+                    context.RegisterCodeFix(
+                        CodeAction.Create(
+                            title: $"{CodeFixResources.CodeFixTitleTSelfNestedName} ({paramName})",
+                            createChangedSolution: c => ChangeNameToTSelfAsync(paramName, context.Document, typeArgumentSyntax, c),
+                            equivalenceKey: equivalenceKeyByName + paramName),
+                        diagnostic);
+                }
             }
         }
 
@@ -85,10 +88,8 @@ namespace TSelfGeneric
             //var attribute = generator.Attribute(attributeDeclarationNode);
 
             
-            // TODO: In case of an attribute in an other namesapce, the attribute will not be referenced
-            var attributeName = Regex.Replace(attributeSymbol.Name, "(\\S+)Attribute$", "$1");
-            var attribute = generator.Attribute(generator.IdentifierName(attributeName));
-            var attributeSyntax = SyntaxFactory.Attribute(SyntaxFactory.IdentifierName(attributeName));
+            var attributeName = attributeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var attribute = generator.Attribute(SyntaxFactory.ParseName(attributeName));
 
             var newTypeParameter = generator.AddAttributes(typeParameter, attribute) as TypeParameterSyntax;
             newTypeParameter = newTypeParameter.WithAdditionalAnnotations();

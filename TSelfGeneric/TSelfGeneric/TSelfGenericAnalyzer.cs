@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -107,13 +106,7 @@ namespace TSelfGeneric
 
         private static void ReportNestedDiagnostic(SyntaxNodeAnalysisContext context, Config config, ITypeSymbol typeArgument, TypeSyntax typeArgumentSyntax)
         {
-            string genericParamAlternative = config switch
-            {
-                { attributeEnable: true, paramNameEnable: true } => $"\"{config.paramName}\"|\"[{config.attributeName}] {typeArgument.Name}\"",
-                { attributeEnable: true } => $"\"[{config.attributeName}] {typeArgument.Name}\"",
-                { paramNameEnable: true } => $"\"{config.paramName}\"",
-                _ => throw new NotSupportedException()
-            };
+            string genericParamAlternative = config.GetGenericParameterAlternatives(typeArgument.Name);
 
             var locationInCurrentDocument = typeArgument.Locations.First(loc => loc.SourceTree == context.Node.SyntaxTree);
 
@@ -132,24 +125,24 @@ namespace TSelfGeneric
             public const bool DefaultTargetGenericArgEnable = true;
             public const bool DefaultTargetAttributeEnable = true;
 
-            public string paramName;
+            public ImmutableArray<string> paramNames;
             public bool paramNameEnable;
 
-            public string attributeName;
+            public ImmutableArray<string> attributeNames;
             public bool attributeEnable;
             // This struct is just a way to organise the code and share it with the fix
 #pragma warning disable RS1008 // Évitez de stocker des données par compilation dans les champs d'un analyseur de diagnostic.
-            public INamedTypeSymbol attributeSymbol;
+            public ImmutableArray<INamedTypeSymbol> attributeSymbols;
 #pragma warning restore RS1008 // Évitez de stocker des données par compilation dans les champs d'un analyseur de diagnostic.
 
             public static Config Default(Compilation compilation)
             {
                 var config = new Config();
                 config.paramNameEnable = DefaultTargetGenericArgEnable;
-                config.paramName = DefaultTargetGenericArg;
+                config.paramNames = ImmutableArray.Create(DefaultTargetGenericArg);
                 config.attributeEnable = DefaultTargetAttributeEnable;
-                config.attributeName = DefaultTargetAttributeFullName;
-                config.attributeSymbol = compilation.GetTypeByMetadataName(DefaultTargetAttributeFullName);
+                config.attributeNames = ImmutableArray.Create(DefaultTargetAttributeFullName);
+                config.attributeSymbols = GetAttributeSymbols(compilation, config.attributeNames);
                 return config;
             }
 
@@ -158,47 +151,76 @@ namespace TSelfGeneric
 
             public static Config From(AnalyzerConfigOptionsProvider provider, SyntaxTree syntaxTree, Compilation compilation)
             {
-#if CONFIG
                 var config = new Config();
                 var options = provider.GetOptions(syntaxTree);
                 if (!options.TryGetValue($"{Root}.{ParamName}.enable", out var rowRequiredParamNameEnable)
                     || !bool.TryParse(rowRequiredParamNameEnable, out config.paramNameEnable))
                     config.paramNameEnable = DefaultTargetGenericArgEnable;
 
-                if (!options.TryGetValue($"{Root}.{ParamName}", out config.paramName))
-                    config.paramName = DefaultTargetGenericArg;
+                config.paramNames = GetConfiguredValues(options, $"{Root}.{ParamName}", DefaultTargetGenericArg);
 
                 if (!options.TryGetValue($"{Root}.{AttributeName}.enable", out var rowRequiredAttributeNameEnable)
                     || !bool.TryParse(rowRequiredAttributeNameEnable, out config.attributeEnable))
                     config.attributeEnable = DefaultTargetAttributeEnable;
 
-                if (!options.TryGetValue($"{Root}.{AttributeName}", out config.attributeName))
-                    config.attributeName = DefaultTargetAttributeName;
-
-                config.attributeSymbol = compilation.GetTypeByMetadataName(config.attributeName);
+                config.attributeNames = GetConfiguredValues(options, $"{Root}.{AttributeName}", DefaultTargetAttributeFullName);
+                config.attributeSymbols = GetAttributeSymbols(compilation, config.attributeNames);
 
                 return config;
-#else
-                return Default(compilation);
-#endif
             }
+
+            private static ImmutableArray<string> GetConfiguredValues(AnalyzerConfigOptions options, string key, string defaultValue)
+            {
+                if (!options.TryGetValue(key, out var value))
+                    value = defaultValue;
+
+                return value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(item => item.Trim())
+                    .Where(item => item.Length > 0)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToImmutableArray();
+            }
+
+            private static ImmutableArray<INamedTypeSymbol> GetAttributeSymbols(Compilation compilation, ImmutableArray<string> names)
+                => names.Select(compilation.GetTypeByMetadataName)
+                    .Where(symbol => symbol != null)
+                    .ToImmutableArray();
 
             public bool IsValidName(ITypeSymbol typeArgument)
                 => paramNameEnable
                 /*&& isAbstract*/
                 && typeArgument is ITypeParameterSymbol typeParameter
-                && paramName.Equals(typeParameter.Name, StringComparison.OrdinalIgnoreCase);
+                && paramNames.Any(name => name.Equals(typeParameter.Name, StringComparison.OrdinalIgnoreCase));
 
             public bool AsValidAttribute(ITypeSymbol typeArgument)
             {
-                var typeSymbol = attributeSymbol;
+                var configuredAttributeSymbols = attributeSymbols;
                 return attributeEnable
                       && typeArgument != null
                       && typeArgument.GetAttributes()
-                                     .Any(p => SymbolEqualityComparer.Default.Equals(p.AttributeClass, typeSymbol));
-                    //&& typeArgument.GetAttributes().Any(p => p.AttributeClass.Name == attributeName);
+                                     .Any(attribute => configuredAttributeSymbols.Any(attributeSymbol =>
+                                         SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeSymbol)));
             }
-                
+
+            public string GetGenericParameterAlternatives(string typeParameterName)
+            {
+                var alternatives = new System.Collections.Generic.List<string>();
+                if (paramNameEnable)
+                    alternatives.AddRange(paramNames.Select(name => $"\"{name}\""));
+                if (attributeEnable)
+                    alternatives.AddRange(attributeNames.Select(name => $"\"[{GetAttributeUsageName(name)}] {typeParameterName}\""));
+
+                return string.Join("|", alternatives);
+            }
+
+            private static string GetAttributeUsageName(string metadataName)
+            {
+                var lastDot = metadataName.LastIndexOf('.');
+                var simpleName = lastDot >= 0 ? metadataName.Substring(lastDot + 1) : metadataName;
+                return simpleName.EndsWith("Attribute", StringComparison.Ordinal)
+                    ? simpleName.Substring(0, simpleName.Length - "Attribute".Length)
+                    : simpleName;
+            }
         }
     }
 }

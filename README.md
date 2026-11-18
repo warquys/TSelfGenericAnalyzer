@@ -34,18 +34,21 @@ class BadImplementation : ISelfRequested<Implementation> { }
 //                      Warning here, should be BadImplementation class.
 ```
 
-<!--
-This feature is not enable by default.
-You can configure the analyser like following.editorconfig (default one is showed):
+You can configure the analyzer in `.editorconfig`. Values may contain a comma- or
+semicolon-separated list, so existing single-value configurations remain valid:
 
 ```conf
 [*.cs]
-dotnet_tselfgeneric.tself_attribute_name = TSelfAttribute
-dotnet_tselfgeneric.tself_attribute_name.enable = false
-dotnet_tselfgeneric.tself_param_name = TSelf
+dotnet_tselfgeneric.tself_attribute_name = TSelfAttribute, Self.TSelfAttribute
+dotnet_tselfgeneric.tself_attribute_name.enable = true
+dotnet_tselfgeneric.tself_param_name = TSelf; TSelfType
 dotnet_tselfgeneric.tself_param_name.enable = true
 ```
--->
+
+The attribute names are metadata names (including the namespace when needed).
+The analyzer keeps the default values `TSelfAttribute` and `TSelf` when no
+configuration is provided. When multiple values are configured, the nested
+generic-parameter diagnostic accepts any configured name or attribute.
 
 Not inheriting the aspect of the TSelf when passing a generic argument will result in a warning.
 
