@@ -61,7 +61,7 @@ namespace TSelfGeneric {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Add the TSelf attribute to the TSelf genreic parameter.
+        ///   Recherche une chaîne localisée semblable à Add the TSelf attribute to the generic parameter.
         /// </summary>
         internal static string CodeFixTitleTSelfNestedAttribute {
             get {

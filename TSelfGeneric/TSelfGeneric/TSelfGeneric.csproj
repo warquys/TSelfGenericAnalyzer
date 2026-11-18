@@ -32,8 +32,7 @@
 	<ItemGroup>
 		<Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
 		<EmbeddedResource Update="Resources.fr.resx">
-			<LastGenOutput>Resources.fr.Designer.cs</LastGenOutput>
-			<Generator>ResXFileCodeGenerator</Generator>
+			<DependentUpon>Resources.resx</DependentUpon>
 		</EmbeddedResource>
 		<EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
 	</ItemGroup>

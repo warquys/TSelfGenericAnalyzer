@@ -122,7 +122,7 @@
     <comment>The title of the code fix TSelfSelfFixProvider.</comment>
   </data>
   <data name="CodeFixTitleTSelfNestedAttribute" xml:space="preserve">
-    <value>Add the TSelf attribute to the TSelf genreic parameter</value>
+    <value>Add the TSelf attribute to the generic parameter</value>
     <comment>The title of the code fix TSelfNestedFix by Attirubet</comment>
   </data>
   <data name="CodeFixTitleTSelfNestedName" xml:space="preserve">

@@ -122,7 +122,7 @@
     <comment>The title of the code fix.</comment>
   </data>
   <data name="CodeFixTitleTSelfNestedAttribute" xml:space="preserve">
-    <value>Ajouter l'attribut TSelf au paramètre générique TSelf</value>
+    <value>Ajouter l'attribut TSelf au paramètre générique</value>
   </data>
   <data name="CodeFixTitleTSelfNestedName" xml:space="preserve">
     <value>Renommer le paramètre générique TSelf au format TSelf</value>
