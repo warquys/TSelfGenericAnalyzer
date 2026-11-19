@@ -18,7 +18,7 @@
 
 ### Known Issues
 
-- Local culture issue, using US and not FR when set to FR.
+- None.
 
 ### Upgrade Instructions
 

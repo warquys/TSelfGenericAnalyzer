@@ -122,7 +122,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="Nested_AnalyzerDescription" xml:space="preserve">
-    <value>Le paramètre généirque devrait être dans la continuté du TSelf.</value>
+    <value>Le paramètre générique devrait être dans la continuité du TSelf.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="Self_AnalyzerMessageFormat" xml:space="preserve">

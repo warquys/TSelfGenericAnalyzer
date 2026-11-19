@@ -21,15 +21,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Update="CodeFixResources.fr.Designer.cs">
-			<DependentUpon>CodeFixResources.fr.resx</DependentUpon>
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-		</Compile>
 		<Compile Update="CodeFixResources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="CodeFixResources.resx" />
 		<EmbeddedResource Update="CodeFixResources.fr.resx">
-			<LastGenOutput>CodeFixResources.fr.Designer.cs</LastGenOutput>
-			<Generator>ResXFileCodeGenerator</Generator>
+			<DependentUpon>CodeFixResources.resx</DependentUpon>
 		</EmbeddedResource>
 		<EmbeddedResource Update="CodeFixResources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="CodeFixResources.Designer.cs" />
 	</ItemGroup>

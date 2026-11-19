@@ -60,6 +60,5 @@ class SomeImplementation<T> : ISelfRequested<T> where T : ISelfRequested<T> { }
 //  Warning here, should be name TSelf or as the TSelfAttribute like [TSelf] T.
 ```
 
-TODO:
-
-- [ ] Fix string localisation bug (Using US and not FR when set to FR)
+Analyzer and code-fix messages are available in French (`fr`), Spanish (`es`),
+German (`de`), Italian (`it`), and Brazilian Portuguese (`pt-BR`).
